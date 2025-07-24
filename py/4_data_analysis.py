@@ -4,7 +4,6 @@
 计算五个关键参数：2018/2021窗口分位点、本周变化额/率、本周收盘值
 """
 
-import logging
 import sys
 import pandas as pd
 import numpy as np
@@ -14,21 +13,9 @@ from tqdm import tqdm
 from scipy.stats import percentileofscore
 import config
 
-def setup_logging(log_path):
-    """配置日志记录器"""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_path, mode='w', encoding='utf-8'),
-            logging.StreamHandler()
-        ]
-    )
-
 def _calculate_key_metrics(df, change_period_days, trading_days_since_2018, trading_days_since_2021, result_labels):
     """计算每列最后一行数据的五个关键参数"""
     if df.empty:
-        logging.warning("数据为空，无法进行计算。")
         return pd.DataFrame(index=list(result_labels.values()))
 
     # 获取最后一行数据
@@ -45,10 +32,7 @@ def _calculate_key_metrics(df, change_period_days, trading_days_since_2018, trad
             continue
     
     if not valid_columns:
-        logging.warning("没有找到有效的数值列，无法计算分析指标。")
         return pd.DataFrame(index=list(result_labels.values()))
-
-    logging.info(f"将为以下 {len(valid_columns)} 列计算关键参数: {valid_columns[:5]}{'...' if len(valid_columns) > 5 else ''}")
     
     # 初始化结果字典
     analysis_results = {label: {} for label in result_labels.values()}
@@ -101,21 +85,15 @@ def _calculate_key_metrics(df, change_period_days, trading_days_since_2018, trad
 
 def run_analysis(input_data_path, output_path, change_period_days, trading_days_since_2018, trading_days_since_2021, result_labels):
     """主分析流程：读取数据，计算关键参数，输出七列长表格"""
-    logging.info("=== 数据分析模块启动 ===")
-    logging.info(f"输入文件: {input_data_path}")
-    logging.info(f"输出文件: {output_path}")
 
     try:
         # 读取Excel文件
         excel_file = pd.ExcelFile(input_data_path)
         sheet_names = excel_file.sheet_names
-        logging.info(f"发现 {len(sheet_names)} 个工作表: {sheet_names[:3]}{'...' if len(sheet_names) > 3 else ''}")
 
     except FileNotFoundError as e:
-        logging.error(f"输入文件未找到: {e}")
         raise
     except Exception as e:
-        logging.error(f"读取Excel文件时发生错误: {e}")
         raise
 
     processed_count = 0
@@ -128,10 +106,7 @@ def run_analysis(input_data_path, output_path, change_period_days, trading_days_
             df = excel_file.parse(sheet_name, index_col=0)
             
             if df.empty:
-                logging.warning(f"工作表 '{sheet_name}' 为空，跳过处理。")
                 continue
-            
-            logging.info(f"处理工作表 '{sheet_name}': {df.shape[0]} 行 × {df.shape[1]} 列")
             
             # 计算关键参数
             analysis_df = _calculate_key_metrics(
@@ -153,14 +128,11 @@ def run_analysis(input_data_path, output_path, change_period_days, trading_days_
                     }
                     all_results.append(row_data)
                 
-                logging.info(f"工作表 '{sheet_name}' 处理完成，关键参数已计算")
-            else:
-                logging.warning(f"工作表 '{sheet_name}' 无法计算关键参数")
+                pass
             
             processed_count += 1
             
         except Exception as e:
-            logging.error(f"处理工作表 '{sheet_name}' 时发生错误: {e}", exc_info=True)
             continue
 
     # 将所有结果合并为一个DataFrame并保存
@@ -173,35 +145,52 @@ def run_analysis(input_data_path, output_path, change_period_days, trading_days_
         
         with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
             final_df.to_excel(writer, sheet_name='关键数据汇总', index=False)
+
+def calculate_trading_days_from_input_file(input_file_path):
+    """根据输入文件动态计算交易日参数"""
+    try:
+        # 读取第一个工作表来获取数据行数
+        excel_file = pd.ExcelFile(input_file_path)
+        first_sheet = excel_file.sheet_names[0]
+        df = pd.read_excel(input_file_path, sheet_name=first_sheet, index_col=0)
         
-        logging.info(f"成功处理 {processed_count} 个工作表，共生成 {len(all_results)} 行数据")
-    else:
-        logging.warning("未生成任何有效数据")
-    
-    logging.info(f"=== 数据分析完成 === 结果已保存至: {output_path}")
+        total_rows = len(df)
+        
+        # 2018年第一天是第2行，2021年第一天是第732行
+        # 计算从2018年至今的交易日数（从第2行到最后一行）
+        trading_days_since_2018 = total_rows - 1  # 减1因为第2行对应索引1
+        
+        # 计算从2021年至今的交易日数（从第732行到最后一行）
+        trading_days_since_2021 = total_rows - 731  # 减731因为第732行对应索引731
+        
+        print(f"动态计算的交易日参数:")
+        print(f"  数据总行数: {total_rows}")
+        print(f"  2018年至今交易日数: {trading_days_since_2018}")
+        print(f"  2021年至今交易日数: {trading_days_since_2021}")
+        
+        return trading_days_since_2018, trading_days_since_2021
+    except Exception as e:
+        print(f"计算交易日参数时出错: {e}，使用默认值")
+        # 如果计算失败，使用默认值
+        return 1825, 1094
 
 def main():
     """主函数，加载配置并执行分析"""
-    log_file_path = os.path.join(config.BASE_DIR, 'run_log_4_analysis.txt')
-    setup_logging(log_file_path)
-
     try:
-        # 动态获取配置，确保交易日参数基于实际数据计算
+        # 获取配置
         fp_config = config.get_step4_analysis_config()
         
-        # 从配置中获取参数
-        analysis_params = fp_config['analysis_parameters']
-        
-        logging.info(f"使用动态计算的交易日参数:")
-        logging.info(f"  2018年至今交易日数: {analysis_params['trading_days_since_2018']}")
-        logging.info(f"  2021年至今交易日数: {analysis_params['trading_days_since_2021']}")
+        # 动态计算交易日参数
+        trading_days_since_2018, trading_days_since_2021 = calculate_trading_days_from_input_file(
+            fp_config['file_paths']['input_excel_for_analysis']
+        )
         
         run_analysis(
             input_data_path=fp_config['file_paths']['input_excel_for_analysis'],
             output_path=fp_config['file_paths']['output_excel_analysis'],
-            change_period_days=analysis_params['change_period_days'],
-            trading_days_since_2018=analysis_params['trading_days_since_2018'],
-            trading_days_since_2021=analysis_params['trading_days_since_2021'],
+            change_period_days=fp_config['analysis_parameters']['change_period_days'],
+            trading_days_since_2018=trading_days_since_2018,
+            trading_days_since_2021=trading_days_since_2021,
             result_labels=fp_config['result_labels']
         )
         
@@ -209,7 +198,6 @@ def main():
         print(f"输出文件: {fp_config['file_paths']['output_excel_analysis']}")
         
     except Exception as e:
-        logging.error(f"数据分析过程中发生错误: {e}", exc_info=True)
         print(f"数据分析失败: {e}")
         sys.exit(1)
 

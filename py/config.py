@@ -41,8 +41,6 @@ STEP3_INPUT_FILE = STEP2_OUTPUT_FILE  # 步骤2的输出作为步骤3的输入
 
 # 分析参数配置
 CHANGE_PERIOD_DAYS = 5
-TRADING_DAYS_SINCE_2018 = 1825
-TRADING_DAYS_SINCE_2021 = 1094
 
 def calculate_trading_days_from_data(data_file_path):
     """
@@ -72,9 +70,7 @@ def calculate_trading_days_from_data(data_file_path):
 
 # 分析参数
 ANALYSIS_PARAMS = {
-    'change_period_days': CHANGE_PERIOD_DAYS,
-    'trading_days_since_2018': TRADING_DAYS_SINCE_2018,
-    'trading_days_since_2021': TRADING_DAYS_SINCE_2021
+    'change_period_days': CHANGE_PERIOD_DAYS
 }
 
 def get_step4_analysis_config():
@@ -87,9 +83,7 @@ def get_step4_analysis_config():
             'output_excel_analysis': STEP4_OUTPUT_FILE
         },
         'analysis_parameters': {
-            'change_period_days': CHANGE_PERIOD_DAYS,
-            'trading_days_since_2018': TRADING_DAYS_SINCE_2018,
-            'trading_days_since_2021': TRADING_DAYS_SINCE_2021
+            'change_period_days': CHANGE_PERIOD_DAYS
         },
         'result_labels': {
             'quantile_a': '2018年至今分位数',
