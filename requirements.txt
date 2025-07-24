@@ -1,0 +1,18 @@
+# 转债数据处理系统依赖包
+# 安装命令: pip install -r requirements.txt
+
+# 数据处理核心库
+pandas>=1.3.0
+
+# Excel文件读写支持
+openpyxl>=3.0.0
+
+# 数值计算（pandas依赖）
+numpy>=1.21.0
+
+# 日期时间处理（Python内置，无需安装）
+# datetime
+
+# 文件系统操作（Python内置，无需安装）
+# os
+# pathlib
