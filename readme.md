@@ -18,10 +18,10 @@ cb_weekly_update/
 ├── py/                     # Python源代码
 │   ├── config.py          # 配置文件
 │   ├── main.py            # 主程序入口
-│   ├── 1_数据清洗.py       # 步骤1：数据清洗
-│   ├── 2_数据合并.py       # 步骤2：数据合并
-│   ├── 3_指标计算.py       # 步骤3：指标计算
-│   ├── 4_数据分析.py       # 步骤4：数据分析
+│   ├── 1_data_cleaning.py       # 步骤1：数据清洗
+│   ├── 2_data_merging.py        # 步骤2：数据合并
+│   ├── 3_metrics_calculation.py # 步骤3：指标计算
+│   ├── 4_data_analysis.py       # 步骤4：数据分析
 │   └── readme.md          # 详细技术文档
 ├── date/                   # 输入数据目录
 ├── output/                 # 输出结果目录
@@ -69,36 +69,36 @@ python main.py
 
 ```bash
 # 步骤1：数据清洗
-python 1_数据清洗.py
+python 1_data_cleaning.py
 
 # 步骤2：数据合并
-python 2_数据合并.py
+python 2_data_merging.py
 
 # 步骤3：指标计算
-python 3_指标计算.py
+python 3_metrics_calculation.py
 
 # 步骤4：数据分析
-python 4_数据分析.py
+python 4_data_analysis.py
 ```
 
 ## 📊 数据处理流程
 
-1. **数据清洗** (`1_数据清洗.py`)
+1. **数据清洗** (`1_data_cleaning.py`)
    - 读取原始Excel文件的多个工作表
    - 清洗和标准化数据格式
    - 输出清洗后的数据文件
 
-2. **数据合并** (`2_数据合并.py`)
+2. **数据合并** (`2_data_merging.py`)
    - 合并新数据和历史数据
    - 执行数据去重操作
    - 生成合并后的完整数据集
 
-3. **指标计算** (`3_指标计算.py`)
+3. **指标计算** (`3_metrics_calculation.py`)
    - 计算转债相关技术指标
    - 生成衍生数据字段
    - 输出包含指标的数据文件
 
-4. **数据分析** (`4_数据分析.py`)
+4. **数据分析** (`4_data_analysis.py`)
    - 执行统计分析
    - 计算分位数和变化率
    - 生成分析报告

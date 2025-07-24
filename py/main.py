@@ -94,10 +94,10 @@ def main():
         print("="*60)
         
         scripts_to_run = [
-            "1_数据清洗.py",
-            "2_数据合并.py",
-            "3_指标计算.py",
-            "4_数据分析.py"
+            "1_data_cleaning.py",
+            "2_data_merging.py",
+            "3_metrics_calculation.py",
+            "4_data_analysis.py"
         ]
         
         success_count = 0
