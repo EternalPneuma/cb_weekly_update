@@ -10,9 +10,25 @@ openpyxl>=3.0.0
 # 数值计算（pandas依赖）
 numpy>=1.21.0
 
+# 进度条显示
+tqdm>=4.60.0
+
+# 科学计算库（统计函数）
+scipy>=1.7.0  
+
+# 机器学习库（回归模型）
+scikit-learn>=1.0.0
+
+# GUI支持（如果需要使用GUI版本）  
+# tkinter（Python内置，无需安装）
+
 # 日期时间处理（Python内置，无需安装）
 # datetime
 
 # 文件系统操作（Python内置，无需安装）
 # os
 # pathlib
+
+# 多进程支持（Python内置，无需安装）
+# concurrent.futures
+# multiprocessing

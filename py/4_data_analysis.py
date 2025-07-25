@@ -11,7 +11,14 @@ import datetime
 import os
 from tqdm import tqdm
 from scipy.stats import percentileofscore
-import config
+
+# 导入config模块 - 处理相对路径问题
+try:
+    import config
+except ImportError:
+    # 如果直接导入失败，尝试从当前目录导入
+    sys.path.append(os.path.dirname(__file__))
+    import config
 
 def _calculate_key_metrics(df, change_period_days, trading_days_since_2018, trading_days_since_2021, result_labels):
     """计算每列最后一行数据的五个关键参数"""
@@ -83,7 +90,7 @@ def _calculate_key_metrics(df, change_period_days, trading_days_since_2018, trad
 
 
 
-def run_analysis(input_data_path, output_path, change_period_days, trading_days_since_2018, trading_days_since_2021, result_labels):
+def _run_analysis(input_data_path, output_path, change_period_days, trading_days_since_2018, trading_days_since_2021, result_labels):
     """主分析流程：读取数据，计算关键参数，输出七列长表格"""
 
     try:
@@ -174,20 +181,40 @@ def calculate_trading_days_from_input_file(input_file_path):
         # 如果计算失败，使用默认值
         return 1825, 1094
 
-def main():
-    """主函数，加载配置并执行分析"""
+def run_data_analysis(input_path, output_path):
+    """
+    执行数据分析步骤
+    
+    Args:
+        input_path (str): 输入Excel文件路径
+        output_path (str): 输出Excel文件路径
+    
+    Returns:
+        bool: True表示成功，False表示失败
+    """
     try:
+        print("开始执行数据分析...")
+        
+        # 检查输入文件是否存在
+        if not os.path.exists(input_path):
+            print(f"错误：输入文件不存在 - {input_path}")
+            return False
+        
+        print(f"输入文件: {input_path}")
+        print(f"输出文件: {output_path}")
+        
         # 获取配置
         fp_config = config.get_step4_analysis_config()
         
         # 动态计算交易日参数
-        trading_days_since_2018, trading_days_since_2021 = calculate_trading_days_from_input_file(
-            fp_config['file_paths']['input_excel_for_analysis']
-        )
+        print("正在计算交易日参数...")
+        trading_days_since_2018, trading_days_since_2021 = calculate_trading_days_from_input_file(input_path)
         
-        run_analysis(
-            input_data_path=fp_config['file_paths']['input_excel_for_analysis'],
-            output_path=fp_config['file_paths']['output_excel_analysis'],
+        # 执行分析
+        print("正在执行数据分析...")
+        _run_analysis(
+            input_data_path=input_path,
+            output_path=output_path,
             change_period_days=fp_config['analysis_parameters']['change_period_days'],
             trading_days_since_2018=trading_days_since_2018,
             trading_days_since_2021=trading_days_since_2021,
@@ -195,8 +222,28 @@ def main():
         )
         
         print(f"数据分析完成！")
-        print(f"输出文件: {fp_config['file_paths']['output_excel_analysis']}")
+        print(f"输出文件: {output_path}")
+        return True
         
+    except Exception as e:
+        print(f"数据分析失败: {e}")
+        return False
+
+def main():
+    """主函数，加载配置并执行分析"""
+    try:
+        # 获取配置
+        fp_config = config.get_step4_analysis_config()
+        
+        # 调用新的模块化函数
+        success = run_data_analysis(
+            input_path=fp_config['file_paths']['input_excel_for_analysis'],
+            output_path=fp_config['file_paths']['output_excel_analysis']
+        )
+        
+        if not success:
+            sys.exit(1)
+            
     except Exception as e:
         print(f"数据分析失败: {e}")
         sys.exit(1)

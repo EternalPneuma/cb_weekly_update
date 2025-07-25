@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(\"转债数据处理系统.exe\")",
+      "Bash(rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(pip install:*)",
+      "Bash(pyinstaller:*)",
+      "Bash(.distrun_cli.exe --version)",
+      "Bash(\"D:\\git\\cb_weekly_update\\dist\\run_cli.exe\" --version)",
+      "Bash(ls:*)",
+      "Bash(\"D:\\git\\cb_weekly_update\\dist\\run_cli.exe\" --help)",
+      "Bash(for file in 1_data_cleaning.py 2_data_merging.py 3_metrics_calculation.py 4_data_analysis.py)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(grep:*)",
+      "Bash(done)",
+      "Bash(\"D:\\git\\cb_weekly_update\\dist\\run_cli.exe\" --history-file \"test_history.xlsx\" --new-data \"test_new.xlsx\" --output-dir \"test_output\")",
+      "Bash(find:*)"
+    ],
+    "deny": []
+  }
+}

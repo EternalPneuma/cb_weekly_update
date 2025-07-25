@@ -33,7 +33,7 @@ STEP4_OUTPUT_FILE = os.path.join(PROCESS_DIR, f'4_analysis_report_{today}.xlsx')
 # 步骤2需要的额外配置
 STEP2_INPUT_A = STEP2_INPUT_FILE_A  # 历史数据文件
 STEP2_INPUT_B = STEP1_OUTPUT_FILE   # 步骤1的输出作为步骤2的输入B
-STEP2_OUTPUT_MERGED = os.path.join(PROCESS_DIR, f'2_merged_data_{today}.xlsx')
+STEP2_OUTPUT_MERGED = os.path.join(PROCESS_DIR, f'2_merged_data_temp_{today}.xlsx')  # 临时合并文件
 STEP2_OUTPUT_DEDUP = STEP2_OUTPUT_FILE  # 去重后的最终输出
 
 # 步骤3需要的配置
@@ -42,28 +42,29 @@ STEP3_INPUT_FILE = STEP2_OUTPUT_FILE  # 步骤2的输出作为步骤3的输入
 # 分析参数配置
 CHANGE_PERIOD_DAYS = 5
 
+# 默认交易日数配置（用作fallback）
+TRADING_DAYS_SINCE_2018 = 1825  # 大约7年 * 250个交易日/年
+TRADING_DAYS_SINCE_2021 = 1094  # 大约4.5年 * 250个交易日/年
+
 def calculate_trading_days_from_data(data_file_path):
     """
     根据数据文件的行数动态计算交易日数
+    注意：此函数已被4_data_analysis.py中的函数替代，保留用于兼容性
     """
     try:
         import pandas as pd
-        # 尝试读取Excel文件的第一个工作表
-        df = pd.read_excel(data_file_path, sheet_name=0, nrows=0)  # 只读取列名
-        df_full = pd.read_excel(data_file_path, sheet_name=0)  # 读取完整数据
+        # 读取Excel文件的第一个工作表
+        df_full = pd.read_excel(data_file_path, sheet_name=0)
         
-        # 计算行数（减去表头）
-        total_rows = len(df_full) - 1 if len(df_full) > 0 else 0
+        # 计算总行数
+        total_rows = len(df_full)
         
-        # 根据行数估算交易日数
-        # 假设每年约250个交易日
-        years_since_2018 = (datetime.now().year - 2018) + (datetime.now().month / 12.0)
-        years_since_2021 = (datetime.now().year - 2021) + (datetime.now().month / 12.0)
+        # 基于实际数据行数计算交易日数
+        # 2018年第一天是第2行，2021年第一天是第732行
+        trading_days_since_2018 = total_rows - 1  # 从第2行到最后一行
+        trading_days_since_2021 = total_rows - 731  # 从第732行到最后一行
         
-        estimated_2018 = int(years_since_2018 * 250)
-        estimated_2021 = int(years_since_2021 * 250)
-        
-        return estimated_2018, estimated_2021
+        return max(trading_days_since_2018, 1), max(trading_days_since_2021, 1)
     except Exception as e:
         print(f"计算交易日数时出错: {e}")
         return TRADING_DAYS_SINCE_2018, TRADING_DAYS_SINCE_2021
