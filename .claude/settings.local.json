@@ -16,7 +16,8 @@
       "Bash(grep:*)",
       "Bash(done)",
       "Bash(\"D:\\git\\cb_weekly_update\\dist\\run_cli.exe\" --history-file \"test_history.xlsx\" --new-data \"test_new.xlsx\" --output-dir \"test_output\")",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(timeout 300 python py/2_data_merging.py)"
     ],
     "deny": []
   }
