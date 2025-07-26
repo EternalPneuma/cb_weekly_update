@@ -19,7 +19,11 @@ INPUT_DATA_DIR = DATA_ROOT
 os.makedirs(PROCESS_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# 文件路径配置 - 使用Windows兼容的路径格式
+# 文件路径配置
+# 前者为本周数据，后者为历史数据
+# 如需改为绝对路径，可直接写为：
+# STEP1_INPUT_FILE = r"D:/your/absolute/path/1.1 日度数据-清洗前转债基础数据-813支-20250711-20250718-无链接.xlsx"
+# STEP2_INPUT_FILE_A = r"D:/your/absolute/path/2.1 日度数据-清洗后转债基础数据-去重-20180102-20250711(1).xlsx"
 STEP1_INPUT_FILE = os.path.join(DATA_ROOT, "1.1 日度数据-清洗前转债基础数据-813支-20250711-20250718-无链接.xlsx")
 STEP2_INPUT_FILE_A = os.path.join(DATA_ROOT, "2.1 日度数据-清洗后转债基础数据-去重-20180102-20250711(1).xlsx")
 
